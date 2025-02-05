@@ -5,7 +5,6 @@ module GraphiQL
     class EditorsControllerTest < ActionController::TestCase
       setup do
         @routes = GraphiQL::Rails::Engine.routes
-        Object.const_set(:Sprockets, :something)
       end
 
       teardown do
@@ -14,7 +13,6 @@ module GraphiQL
         GraphiQL::Rails.config.title = nil
         GraphiQL::Rails.config.logo = nil
         GraphiQL::Rails.config.headers = {}
-        Object.send(:remove_const, :Sprockets)
       end
 
       def graphql_params
@@ -25,8 +23,7 @@ module GraphiQL
         get :show, **graphql_params
         assert_response(:success)
         assert_includes(@response.body, 'my/endpoint', 'it uses the provided path')
-        # If sprockets was actually loaded, it would apply a digest to this:
-        assert_match(/application\.js/, @response.body, 'it includes assets')
+        assert_match(/graphiql-rails\.js\?v=#{GraphiQL::Rails::VERSION}/, @response.body, 'it includes assets')
       end
 
       test 'it uses initial_query config' do
